@@ -1,0 +1,272 @@
+/**
+ * Shared accessibility toggles — classes on `html` from `applyPreferencesToDocument`.
+ * Imported by landing + playground.
+ */
+
+/* —— High contrast —— */
+html.bra-a11y--high-contrast {
+  --text: #000000;
+  --text-muted: #1a1a1a;
+  --color-text-primary: #000000;
+  --color-text-muted: #242424;
+}
+
+html.bra-a11y--high-contrast body {
+  color: var(--text, var(--color-text-primary));
+}
+
+html.bra-a11y--high-contrast .landing-header,
+html.bra-a11y--high-contrast .landing-footer {
+  border-width: 4px;
+}
+
+html.bra-a11y--high-contrast .btn-cta,
+html.bra-a11y--high-contrast .btn {
+  border-width: 2px;
+}
+
+html.bra-a11y--high-contrast .feature-card,
+html.bra-a11y--high-contrast .purchase-card,
+html.bra-a11y--high-contrast .access-list li {
+  border-width: 2px;
+  border-color: #000000;
+}
+
+html.bra-a11y--high-contrast {
+  --color-border: #1a1a1a;
+  --color-border-dark: #000000;
+}
+
+html.bra-a11y--high-contrast .topbar {
+  border-bottom: 3px solid #ffffff;
+}
+
+html.bra-a11y--high-contrast .block-list-panel,
+html.bra-a11y--high-contrast .stack-wrap,
+html.bra-a11y--high-contrast .script-text-dock,
+html.bra-a11y--high-contrast .stage-canvas {
+  outline: 2px solid #000000;
+  outline-offset: 0;
+}
+
+/* —— Larger text —— */
+html.bra-a11y--large-text {
+  font-size: 118%;
+}
+
+/* —— Reduce motion (user toggle; complements prefers-reduced-motion) —— */
+html.bra-a11y--reduce-motion *,
+html.bra-a11y--reduce-motion *::before,
+html.bra-a11y--reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.bra-a11y--reduce-motion .waveform span {
+  animation: none !important;
+}
+
+/* —— Enhanced focus —— */
+html.bra-a11y--enhanced-focus *:focus-visible {
+  outline: 4px solid #5c8dc5 !important;
+  outline-offset: 3px !important;
+}
+
+html.bra-a11y--enhanced-focus .landing-header *:focus-visible,
+html.bra-a11y--enhanced-focus .bunifu-strip *:focus-visible,
+html.bra-a11y--enhanced-focus .landing-footer *:focus-visible {
+  outline-color: #ffcc00 !important;
+}
+
+html.bra-a11y--enhanced-focus .topbar *:focus-visible,
+html.bra-a11y--enhanced-focus .status-bar *:focus-visible {
+  outline-color: #ffcc00 !important;
+}
+
+/* —— Underline links —— */
+html.bra-a11y--underline-links a:not(.bra-a11y-skip-underline) {
+  text-decoration: underline !important;
+  text-underline-offset: 0.2em;
+}
+
+html.bra-a11y--underline-links .btn-cta,
+html.bra-a11y--underline-links .btn {
+  text-decoration: underline !important;
+}
+
+/* —— Panel UI (landing FAB + shared dialog) —— */
+.bra-a11y-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bra-a11y-fab {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 10050;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 2px solid var(--brand-deep, #5a5348);
+  background: var(--btn-primary-bg, #4d7fb0);
+  color: #ffffff;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(74, 69, 64, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bra-a11y-fab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(74, 69, 64, 0.35);
+}
+
+.bra-a11y-fab:focus-visible {
+  outline: 3px solid #ffcc00;
+  outline-offset: 3px;
+}
+
+.bra-a11y-fab-icon {
+  display: flex;
+  line-height: 0;
+}
+
+.bra-a11y-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  background: rgba(10, 20, 30, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.bra-a11y-dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10070;
+  width: min(440px, calc(100vw - 2rem));
+  max-height: min(85vh, 720px);
+  overflow: auto;
+  padding: 22px 22px 18px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f1a22;
+  box-shadow: 0 20px 60px rgba(58, 52, 46, 0.22);
+  border: 2px solid #5a5348;
+}
+
+.bra-a11y-dialog-head {
+  margin-bottom: 16px;
+}
+
+.bra-a11y-dialog-title {
+  margin: 0 0 8px;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #5a5348;
+}
+
+.bra-a11y-dialog-lead {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #736f60;
+}
+
+.bra-a11y-toggle-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bra-a11y-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.bra-a11y-checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: #4d7fb0;
+}
+
+.bra-a11y-toggle-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bra-a11y-toggle-label {
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #2a2822;
+}
+
+.bra-a11y-toggle-desc {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #736f60;
+}
+
+.bra-a11y-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #d4cfc6;
+}
+
+.bra-a11y-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 2px solid #5a5348;
+  background: #ffffff;
+  color: #5a5348;
+}
+
+.bra-a11y-btn-primary {
+  background: #4d7fb0;
+  color: #ffffff;
+  border-color: #4d7fb0;
+}
+
+.a11y-panel-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10040;
+  pointer-events: none;
+}
+
+.a11y-panel-root .bra-a11y-backdrop,
+.a11y-panel-root .bra-a11y-dialog {
+  pointer-events: auto;
+}

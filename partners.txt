@@ -1,0 +1,24 @@
+        <RevealSection className="section section-partners" aria-labelledby="partners-title">
+          <div className="section-inner">
+            <h2 id="partners-title">Our Partners</h2>
+            <p className="section-intro">
+              Partnering with organizations committed to inclusive technology and education in Africa.
+            </p>
+            <div className="partners-grid">
+              <div className="partner-card">
+                <div className="partner-placeholder">
+                  {/* Replace with actual partner logo and name */}
+                  <div className="partner-logo-area">Partner 1</div>
+                  <p className="partner-description">Strategic partner committed to advancing inclusive education</p>
+                </div>
+              </div>
+              <div className="partner-card">
+                <div className="partner-placeholder">
+                  {/* Replace with actual partner logo and name */}
+                  <div className="partner-logo-area">Partner 2</div>
+                  <p className="partner-description">Strategic partner committed to advancing inclusive education</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </RevealSection>
