@@ -6,7 +6,7 @@ import { MAIL_DEMO, MAIL_KIT, MAIL_PLAIN } from "../lib/landing-mailto";
 import { School, SchoolIcon, Play, Calendar, Users, Building2, GraduationCap, MapPin } from "lucide-react";
 import { motion, animate, useInView } from "framer-motion";
 
-//data Counting animation Logic
+// Counting Animation Logic
 function CountingNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -37,17 +37,82 @@ const KIT_PHOTOS: readonly { src: string; alt: string }[] = [
   },
 ];
 
+const TEAM_MEMBERS = [
+  { src: "maxwell.jpeg",   name: "Maxwell Kamau",    role: "Founder & CEO"                     },
+  { src: "patricia.jpeg",  name: "Patricia Wanjiru", role: "Co-founder"                         },
+  { src: "ann.jpeg",       name: "Ann Nyokabi",      role: "Software Engineer & Web Developer"  },
+  { src: "johndoe1.jpeg",  name: "John Doe1",        role: "Lead Engineer"                      },
+  { src: "johndoe2.jpeg",  name: "John Doe2",        role: "Lead Engineer"                      },
+  { src: "mokaya.jpeg",    name: "Brian Mokaya",     role: "Software Developer"                 },
+  { src: "/team-7.jpg",    name: "Ruth Mungai",      role: "Software Developer"                 },
+  { src: "/team-8.jpg",    name: "Erick Mutua",      role: "Backend Developer"                  },
+  { src: "victor.jpeg",    name: "Victor Munene",    role: "Web & Software Developer"           },
+  { src: "",               name: "Isaiah",           role: "Frontend Developer"                 },
+];
+
 export function LandingPage() {
   const year = new Date().getFullYear();
   const [kitLightbox, setKitLightbox] = useState<number | null>(null);
   const kitLightboxCloseRef = useRef<HTMLButtonElement>(null);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Team carousel with auto-scroll
+  const [teamScrollPaused, setTeamScrollPaused] = useState(false);
+  const teamCarouselRef = useRef<HTMLDivElement>(null);
+  const teamScrollInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTeamScroll = useCallback(() => {
+    if (teamScrollInterval.current) clearInterval(teamScrollInterval.current);
+    teamScrollInterval.current = setInterval(() => {
+      const el = teamCarouselRef.current;
+      if (!el) return;
+      // When we reach the end jump back to start
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 2) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: 263, behavior: "smooth" });
+      }
+    }, 2500);
+  }, []);
+
+  const stopTeamScroll = useCallback(() => {
+    if (teamScrollInterval.current) {
+      clearInterval(teamScrollInterval.current);
+      teamScrollInterval.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!teamScrollPaused) {
+      startTeamScroll();
+    } else {
+      stopTeamScroll();
+    }
+    return () => stopTeamScroll();
+  }, [teamScrollPaused, startTeamScroll, stopTeamScroll]);
+
+  const toggleVideo = useCallback(() => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setVideoPaused(false);
+    } else {
+      videoRef.current.pause();
+      setVideoPaused(true);
+    }
+  }, []);
 
   const closeKitLightbox = useCallback(() => setKitLightbox(null), []);
 
   useEffect(() => {
     const controlHeader = () => {
+      // Transparent at top, solid once scrolled past 80px
+      setScrolled(window.scrollY > 80);
+
       if (window.scrollY > lastScrollY && window.scrollY > 100) {
         setShowHeader(false); // Scrolling Down
       } else {
@@ -81,22 +146,34 @@ export function LandingPage() {
         Skip to main content
       </a>
 
-      {/*HEADER*/}
-      <header className={`fixed top-0 w-full bg-white/95 backdrop-blur-md z-[100] border-b border-slate-100 px-6 lg:px-16 py-4 flex justify-between items-center transition-transform duration-500 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
+      {/*HEADER...Transparent at top solid white on scroll */}
+      <header className={`fixed top-0 w-full z-[100] px-6 lg:px-16 py-4 flex justify-between items-center transition-all duration-500
+        ${showHeader ? 'translate-y-0' : '-translate-y-full'}
+        ${scrolled
+          ? 'bg-white/95 backdrop-blur-md border-b border-slate-100'
+          : 'bg-transparent border-b border-white/10'}
+      `}>
         <a className="flex items-center" href="/" aria-label="BrailleEd home">
-          <img src={LOGO} alt="BrailleEd Logo" className="h-20 md:h-28 w-auto object-contain transition-transform origin-left hover:scale-105"/>
+          <img
+            src={LOGO}
+            alt="BrailleEd Logo"
+            className={`h-20 md:h-28 w-auto object-contain transition-all origin-left hover:scale-105 ${scrolled ? '' : 'brightness-0 invert'}`}
+          />
         </a>
         
         <nav className="hidden lg:flex items-center gap-10" aria-label="Primary">
-          <a href="#who-we-are" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-blue-600 transition">Who we are</a>
-          <a href="#purchase-kit" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-blue-600 transition">Purchase a kit</a>
-          <a href="https://bunifuyouths.org" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-blue-600 transition" target="_blank" rel="noopener noreferrer">Bunifu Youths</a>
+          <a href="#who-we-are" className={`text-xs font-bold uppercase tracking-widest transition hover:text-blue-400 ${scrolled ? 'text-slate-600 hover:text-blue-600' : 'text-white'}`}>Who we are</a>
+          <a href="#purchase-kit" className={`text-xs font-bold uppercase tracking-widest transition hover:text-blue-400 ${scrolled ? 'text-slate-600 hover:text-blue-600' : 'text-white'}`}>Purchase a kit</a>
+         {/* <a href="https://bunifuyouths.org" className={`text-xs font-bold uppercase tracking-widest transition hover:text-blue-400 ${scrolled ? 'text-slate-600 hover:text-blue-600' : 'text-white'}`} target="_blank" rel="noopener noreferrer">Bunifu Youths</a> */}
           
           <div className="flex items-center gap-4 ml-4">
-            <a href={MAIL_DEMO} className="text-xs font-bold uppercase tracking-widest border-2 border-blue-600 text-blue-600 px-6 py-2.5 hover:bg-blue-600 hover:text-white transition">
+            <a href={MAIL_DEMO} className={`text-xs font-bold uppercase tracking-widest px-6 py-2.5 border-2 transition
+              ${scrolled
+                ? 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
+                : 'border-white text-white hover:bg-white hover:text-slate-900'}`}>
               Book a demo
             </a>
-            <a href="/playground/" className="text-xs font-bold uppercase tracking-widest bg-slate-900 text-white px-6 py-2.5 hover:bg-blue-700 transition">
+            <a href="/playground/" className="text-xs font-bold uppercase tracking-widest bg-blue-600 text-white px-6 py-2.5 hover:bg-blue-700 transition">
               Open playground
             </a>
           </div>
@@ -105,16 +182,41 @@ export function LandingPage() {
 
       <main id="main-content">
         
-        {/* Hero Section */}
+        {/*HERO SECTION*/}
         <section className="relative min-h-screen flex items-start justify-center bg-slate-900 pt-36 pb-16">
           <video
+            ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover opacity-50"
             autoPlay loop muted playsInline aria-hidden="true"
           >
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
-
+          {/* Subtle grid overlay */}
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
+
+          {/* Pause / Play button */}
+          <button
+            onClick={toggleVideo}
+            aria-label={videoPaused ? "Play background video" : "Pause background video"}
+            className="absolute bottom-8 left-8 z-20 flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 transition-all duration-300"
+          >
+            {videoPaused ? (
+              <>
+                <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+                  <path d="M0 0L12 7L0 14V0Z"/>
+                </svg>
+                Play
+              </>
+            ) : (
+              <>
+                <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+                  <rect x="0" y="0" width="4" height="14"/>
+                  <rect x="8" y="0" width="4" height="14"/>
+                </svg>
+                Pause
+              </>
+            )}
+          </button>
           
           <div className="relative z-10 text-center px-6 max-w-5xl mt-16 md:mt-20">
             <p className="text-blue-400 font-bold uppercase tracking-[0.3em] mb-4 text-sm animate-pulse">
@@ -140,86 +242,260 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* WHO WE ARE*/}
+        {/*  WHO WE ARE */}
         <RevealSection className="py-24 bg-slate-50 px-6 lg:px-24" id="who-we-are">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="border-l-8 border-blue-600 pl-8">
-              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-6">Who we are</h2>
-              <p className="text-xl text-slate-600 leading-relaxed mb-6 font-light">
-                BrailleEd builds robotics and coding learning tools for blind and visually impaired students in Kenya. 
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+
+            {/* LEFT: Text */}
+            <div className="lg:w-[55%] border-l-8 border-blue-600 pl-8">
+              <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-slate-900 mb-6">Who we are</h2>
+              <p className="text-lg text-slate-600 leading-relaxed mb-6 font-light">
+                BrailleEd builds robotics and coding learning tools for blind and visually impaired students in Kenya.
               </p>
-              <p className="text-lg text-slate-600 leading-relaxed font-light">
+              <p className="text-base text-slate-600 leading-relaxed font-light">
                 We design accessible kits and lesson materials that work for learners who cannot use standard screens or printed resources, ensuring no student is left behind in the digital revolution.
               </p>
             </div>
-            <div className="rounded-sm overflow-hidden shadow-2xl">
-                <GalleryCarousel />
+
+            {/* RIGHT: image */}
+            <div className="lg:w-[45%] overflow-hidden rounded-sm shadow-2xl">
+              <img
+                src="who we are.jpeg"
+                alt="BrailleEd student working with robotics kit"
+                className="w-full h-[420px] object-cover"
+              />
             </div>
+
           </div>
         </RevealSection>
 
-        {/*  IMPACT SECTION  */}
-        <RevealSection className="py-32 bg-white px-6 lg:px-24" id="impact">
+        {/* OUR TEAM SECTION  */}
+        <RevealSection className="py-24 bg-white px-6 lg:px-24" id="our-team">
           <div className="max-w-7xl mx-auto">
-            <div className="border-l-8 border-blue-600 pl-8 mb-20 text-left">
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-slate-900 mb-4">Our Impact</h2>
-              <p className="text-xl text-slate-500 max-w-2xl font-light">Working across Kenya to empower blind and visually impaired learners through inclusive robotics.</p>
+
+            {/* Heading with auto-scroll pause/play button on the right */}
+            <div className="flex items-start justify-between mb-16">
+              <div className="border-l-8 border-blue-600 pl-8">
+                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-4">Our Team</h2>
+                <p className="text-xl text-slate-500 max-w-2xl font-light">
+                  The people behind BrailleEd — passionate about inclusive education and technology.
+                </p>
+              </div>
+
+              {/*  Auto-scroll Pause / Play button  */}
+              <button
+                onClick={() => setTeamScrollPaused((p) => !p)}
+                aria-label={teamScrollPaused ? "Resume team carousel" : "Pause team carousel"}
+                className="flex-shrink-0 flex items-center gap-2 border-2 border-slate-300 hover:border-blue-600 hover:text-blue-600 text-slate-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 transition-all bg-white"
+              >
+                {teamScrollPaused ? (
+                  <>
+                    <svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+                      <path d="M0 0L12 7L0 14V0Z"/>
+                    </svg>
+                    Resume
+                  </>
+                ) : (
+                  <>
+                    <svg width="10" height="12" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+                      <rect x="0" y="0" width="4" height="14"/>
+                      <rect x="8" y="0" width="4" height="14"/>
+                    </svg>
+                    Pause
+                  </>
+                )}
+              </button>
             </div>
 
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { 
-                  val: 25, 
-                  label: "Educators Trained", 
-                  img: "Seva Canada - Blog.jpg" 
-                },
-                { 
-                  val: 3, 
-                  label: "Partner Institutions", 
-                  img: "2026 notre dame stadium university_.jpg" 
-                },
-                { 
-                  val: 2, 
-                  label: "Strategic Partners", 
-                  img: "download (2).jpg" 
-                },
-                { 
-                  val: 2, 
-                  label: "Counties Impacted", 
-                  img: "Nairobi.jpg" 
-                }
-              ].map((stat) => (
-                <div key={stat.label} className="flex flex-col bg-slate-50 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100">
-                  {/* Image Container */}
-                  <div className="h-48 overflow-hidden relative">
-                    <img 
-                      src={stat.img} 
-                      alt={stat.label} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            {/* Scroll track */}
+            <div
+              ref={teamCarouselRef}
+              id="team-carousel"
+              className="flex gap-3 overflow-x-auto scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              /* Pause auto-scroll when user hovers */
+              onMouseEnter={() => stopTeamScroll()}
+              onMouseLeave={() => { if (!teamScrollPaused) startTeamScroll(); }}
+            >
+              
+              {TEAM_MEMBERS.map((member, i) => (
+                <div
+                  key={i}
+                  className="relative flex-shrink-0 overflow-hidden group cursor-default"
+                  style={{ width: "260px", height: "360px" }}
+                >
+                  {/* Photo  */}
+                  {member.src ? (
+                    <img
+                      src={member.src}
+                      alt={`${member.name}, ${member.role}`}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    {/* Blue Overlay on Hover */}
-                    <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  ) : (
+                    <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                      <span className="text-slate-400 text-6xl font-black uppercase">{member.name[0]}</span>
+                    </div>
+                  )}
+
+                  {/* Always visible name */}
+                  <div className="absolute bottom-0 left-0 right-0 px-5 pb-5 pt-16
+                    bg-gradient-to-t from-slate-900/75 via-slate-900/30 to-transparent">
+                    <p className="text-white font-black text-base uppercase tracking-tight leading-snug">
+                      {member.name}
+                    </p>
                   </div>
 
-                  {/* Text Content */}
-                  <div className="p-8 border-t-4 border-blue-600 bg-white flex-grow">
-                    <div className="text-5xl font-black text-slate-900 mb-2">
-                      <span aria-label={`${stat.val} ${stat.label}`}>
-                        <CountingNumber value={stat.val} />
-                      </span>
-                    </div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-blue-600 leading-tight">
-                      {stat.label}
-                    </div>
+                  {/* Hover overlay...blue tint + role */}
+                  <div className="absolute inset-0 flex flex-col justify-end px-5 pb-5
+                    bg-gradient-to-t from-blue-700/90 via-blue-600/40 to-transparent
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white font-black text-lg uppercase tracking-tight leading-tight mb-1">
+                      {member.name}
+                    </p>
+                    <p className="text-blue-200 text-xs font-bold uppercase tracking-[0.15em]">
+                      {member.role}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Bottom controls: prev,dots,next */}
+            <div className="flex items-center justify-between mt-8">
+              <button
+                onClick={() => {
+                  stopTeamScroll();
+                  const el = teamCarouselRef.current;
+                  if (el) el.scrollBy({ left: -263, behavior: "smooth" });
+                  if (!teamScrollPaused) setTimeout(startTeamScroll, 3000);
+                }}
+                aria-label="Scroll team left"
+                className="w-12 h-12 flex items-center justify-center border-2 border-slate-300
+                  hover:border-blue-600 hover:text-blue-600 text-slate-700 text-2xl font-bold
+                  transition-all bg-white"
+              >‹</button>
+
+              <div className="flex items-center gap-2">
+                {TEAM_MEMBERS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      stopTeamScroll();
+                      const el = teamCarouselRef.current;
+                      if (el) el.scrollTo({ left: i * 263, behavior: "smooth" });
+                      if (!teamScrollPaused) setTimeout(startTeamScroll, 3000);
+                    }}
+                    className="w-2 h-2 rounded-full bg-slate-300 hover:bg-blue-600 transition-colors"
+                    aria-label={`Go to team member ${i + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  stopTeamScroll();
+                  const el = teamCarouselRef.current;
+                  if (el) el.scrollBy({ left: 263, behavior: "smooth" });
+                  if (!teamScrollPaused) setTimeout(startTeamScroll, 3000);
+                }}
+                aria-label="Scroll team right"
+                className="w-12 h-12 flex items-center justify-center border-2 border-slate-300
+                  hover:border-blue-600 hover:text-blue-600 text-slate-700 text-2xl font-bold
+                  transition-all bg-white"
+              >›</button>
+            </div>
+
           </div>
         </RevealSection>
 
-        {/* ACCESSIBILITY FEATURES */}
+        {/* IMPACT SECTION */}
+        <RevealSection className="py-24 relative" id="impact">
+
+          {/* BACKGROUND IMAGE */}
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src="impact.jpeg"
+              alt=""
+              aria-hidden="true"
+              className="w-full h-full object-cover"
+            />
+          
+            <div className="absolute inset-0 bg-white/75" />
+          </div>
+
+          {/*  HEADING */}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-24 mb-10">
+            <div className="border-l-8 border-blue-600 pl-8">
+              <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 mb-3">Our Impact</h2>
+              <p className="text-lg text-slate-700 max-w-2xl font-light">Working across Kenya to empower blind and visually impaired learners through inclusive robotics.</p>
+            </div>
+          </div>
+
+          {/*TILES GRID*/}
+          <div className="relative z-10 px-4 md:px-6 lg:px-24">
+            <div className="grid grid-cols-2 md:grid-cols4 gap-2 md:gap-3">
+
+              {/* Row 1 Col 1 */}
+              <div className="bg-slate-100 flex flex-col justify-center px-8 py-6 h-48">
+                <div className="text-5xl font-black text-slate-900 mb-1">
+                  <CountingNumber value={25} />
+                </div>
+                <div className="text-xs font-bold text-slate-600 uppercase tracking-widest leading-snug">Educators Trained</div>
+              </div>
+
+              {/* Row 1 Col 2 — Image */}
+              <div className="overflow-hidden group relative h-48">
+                <img src="Seva Canada - Blog.jpg" alt="Educators trained"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              </div>
+               {/* Row 1 Col 4 — Image */}
+              <div className="overflow-hidden group relative h-48">
+                <img src="download (2).jpg" alt="Strategic partners"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              </div>
+
+              {/* Row 1 Col 3 — 2 Strategic Partners */}
+              <div className="bg-slate-900 flex flex-col justify-center px-8 py-6 h-48">
+                <div className="text-5xl font-black text-white mb-1">
+                  <CountingNumber value={2} />
+                </div>
+                <div className="text-xs font-bold text-blue-100 uppercase tracking-widest leading-snug">Strategic Partners</div>
+              </div>
+
+{/* Row 2 Col 2 — 3 Partner Institutions */}
+              <div className="bg-slate-100 flex flex-col justify-center px-8 py-6 h-48">
+                <div className="text-5xl font-black text-slate-900 mb-1">
+                  <CountingNumber value={3} />
+                </div>
+                <div className="text-xs font-bold text-slate-600 uppercase tracking-widest leading-snug">Partner Institutions</div>
+              </div>
+
+              {/* Row 2 Col 1 — Image */}
+              <div className="overflow-hidden group relative h-48">
+                <img src="2026 notre dame stadium university_.jpg" alt="Partner institutions"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              </div>
+
+
+              {/* Row 2 Col 3 — Image */}
+              <div className="overflow-hidden group relative h-48">
+                <img src="Nairobi.jpg" alt="Counties impacted - Nairobi"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              </div>
+
+              {/* Row 2 Col 4 — 2 Counties Impacted */}
+              <div className="bg-slate-900 flex flex-col justify-center px-8 py-6 h-48">
+                <div className="text-5xl font-black text-white mb-1">
+                  <CountingNumber value={2} />
+                </div>
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-widest leading-snug">Counties Impacted</div>
+              </div>
+
+            </div>
+          </div>
+        </RevealSection>
+
+        {/* ACCESSIBILITY FEATURES  */}
         <RevealSection className="py-24 bg-white px-6 lg:px-24">
           <div className="max-w-7xl mx-auto">
             <div className="border-l-8 border-blue-600 pl-8 mb-16">
@@ -243,14 +519,13 @@ export function LandingPage() {
           </div>
         </RevealSection>
 
-        {/* WHAT YOU CAN DO */}
+        {/*  WHAT YOU CAN DO  */}
         <RevealSection className="py-24 bg-slate-900 text-white px-6 lg:px-24">
           <div className="max-w-7xl mx-auto">
              <div className="text-center mb-20">
                 <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">What you can do</h2>
                 <p className="text-blue-400 font-bold uppercase tracking-widest text-sm">A tactile workspace for clarity and feedback</p>
              </div>
-             
              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                {[
                  { id: "01", title: "Voice commands", desc: "Say things like 'move forward' or chain several steps. The app listens and adds the right blocks." },
@@ -267,7 +542,7 @@ export function LandingPage() {
           </div>
         </RevealSection>
 
-        {/*VIDEO SECTION */}
+        {/* VIDEO SECTION */}
         <RevealSection className="py-24 bg-white px-6 lg:px-24 text-center">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 mb-8">See BrailleEd in Action</h2>
@@ -289,7 +564,7 @@ export function LandingPage() {
           </div>
         </RevealSection>
 
-        {/* PURCHASE KIT SECTION */}
+        {/*  PURCHASE KIT SECTION  */}
         <RevealSection className="py-24 bg-slate-50 px-6 lg:px-24" id="purchase-kit">
           <div className="max-w-7xl mx-auto">
             <div className="border-l-8 border-blue-600 pl-8 mb-16">
@@ -334,7 +609,7 @@ export function LandingPage() {
           </div>
         </RevealSection>
 
-        {/* BUNIFU STRIP*/}
+        {/* BUNIFU section  */}
         <section className="py-24 bg-blue-600 text-white text-center px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
@@ -343,8 +618,7 @@ export function LandingPage() {
             <p className="text-xl mb-12 text-blue-100 font-light max-w-2xl mx-auto">
               Empowering young people through inclusive technology and education across the region.
             </p>
-            
-            <a 
+           {/* <a 
               href="https://bunifuyouths.org" 
               target="_blank" 
               rel="noopener noreferrer"
@@ -352,11 +626,12 @@ export function LandingPage() {
             >
               Visit bunifuyouths.org
             </a>
+           */}
           </div>
         </section>
       </main>
 
-      {/* FOOTER  */}
+      {/*FOOTER */}
       <footer className="bg-slate-950 text-white py-24 px-6 lg:px-24">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
           <div className="space-y-6">
@@ -376,7 +651,7 @@ export function LandingPage() {
           <div>
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-500 mb-8">Contact</h3>
             <ul className="space-y-4 text-sm text-slate-300">
-              <li><a href={MAIL_PLAIN} className="hover:text-white transition">{MAIL_PLAIN.replace('mailto:', '')}</a></li>
+              <li><a href={MAIL_KIT} target="_blank" rel="noopener noreferrer" className="hover:text-white transition">bunifuyouthskenya@gmail.com</a></li>
               <li><a href="tel:+254712015793" className="hover:text-white transition">0712 015793</a></li>
               <li className="pt-4 font-bold text-white uppercase tracking-widest text-xs">Based in Kenya</li>
             </ul>
@@ -396,7 +671,7 @@ export function LandingPage() {
 
       <AccessibilityPanel />
 
-      {/*LIGHTBOX LOGIC */}
+      {/* LIGHTBOX LOGIC */}
       {kitLightbox !== null ? (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 p-6" role="dialog" aria-modal="true">
           <button 
