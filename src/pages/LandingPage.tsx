@@ -44,7 +44,7 @@ const TEAM_MEMBERS = [
   { src: "johndoe1.jpeg",  name: "John Doe1",        role: "Lead Engineer"                      },
   { src: "johndoe2.jpeg",  name: "John Doe2",        role: "Lead Engineer"                      },
   { src: "mokaya.jpeg",    name: "Brian Mokaya",     role: "Software Developer"                 },
-  { src: "Mungai..jpeg",    name: "Ruth Mungai",      role: "Software Developer"                 },
+  { src: "Mungai.jpeg",    name: "Ruth Mungai",      role: "Software Developer"                 },
   { src: "/team-8.jpg",    name: "Erick Mutua",      role: "Backend Developer"                  },
   { src: "victor.jpeg",    name: "Victor Munene",    role: "Web & Software Developer"           },
   { src: "",               name: "Isaiah",           role: "Frontend Developer"                 },
