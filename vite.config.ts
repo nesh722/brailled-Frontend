@@ -3,6 +3,7 @@ import { defineConfig, loadEnv, type Plugin } from "vite";
 import { resolve } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { guideProxyPlugin } from "./vite-guide-proxy";
+import tailwindcss from '@tailwindcss/vite'
 
 /** `/playground` → `/playground/` so the directory index resolves cleanly. */
 function playgroundRedirectPlugin(): Plugin {
@@ -30,7 +31,12 @@ function playgroundRedirectPlugin(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
-    plugins: [react(), playgroundRedirectPlugin(), guideProxyPlugin(env)],
+    plugins: [
+      react(), 
+      playgroundRedirectPlugin(), 
+      guideProxyPlugin(env),
+      tailwindcss(),  // ← ADD THIS LINE
+    ],
     build: {
       rollupOptions: {
         input: {
